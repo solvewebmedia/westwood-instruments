@@ -1,0 +1,7 @@
+.vscode
+
+# Ignore Apple store files
+**/.DS_Store
+
+# Ignore all css maps
+**/*.css.map
