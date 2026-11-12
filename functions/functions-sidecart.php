@@ -52,7 +52,7 @@ function ww_cart_recs_html() {
         $count++;
     }
 
-    return $output ? '<div class="ww-cart-recs"><p class="ww-cart-recs__title">Pairs well with</p>' . $output . '</div>' : '';
+    return $output ? '<div class="ww-cart-recs"><p class="ww-cart-recs__title">You might also like</p>' . $output . '</div>' : '';
 }
 
 // Standard WooCommerce mini cart template
