@@ -30,7 +30,7 @@ function ww_support_manager_blocked_pages() {
 		'license-manager' => [ 'license-manager-settings' ],
 		// Sales figures: Product Hub royalties (sits under Analytics) and AutomateWoo dashboard/reports.
 		'wc-admin&path=/analytics/overview' => [ 'product-hub-royalties' ],
-		'automatewoo'     => [ 'automatewoo-dashboard', 'automatewoo-reports' ],
+		'automatewoo'     => [ 'automatewoo', 'automatewoo-dashboard', 'automatewoo-reports' ],
 	];
 }
 
@@ -45,7 +45,20 @@ add_action( 'admin_menu', function () {
 	}
 	// Analytics is empty once Royalties is gone; Payments only leads to the blocked wc-settings.
 	remove_menu_page( 'wc-admin&path=/analytics/overview' );
+	// AutomateWoo's top link opens its dashboard (conversion revenue), so hide the whole menu.
+	remove_menu_page( 'automatewoo' );
 	remove_menu_page( 'admin.php?page=wc-settings&tab=checkout&from=PAYMENTS_MENU_ITEM' );
+}, 999 );
+
+// Order screen "Customer history" box (total revenue / average order value per customer).
+add_action( 'add_meta_boxes', function () {
+	if ( ww_is_support_manager( get_current_user_id() ) ) {
+		foreach ( [ 'shop_order', 'woocommerce_page_wc-orders' ] as $screen ) {
+			foreach ( [ 'side', 'normal' ] as $context ) {
+				remove_meta_box( 'woocommerce-customer-history', $screen, $context );
+			}
+		}
+	}
 }, 999 );
 
 // Dashboard widget showing Smart Coupons revenue.
