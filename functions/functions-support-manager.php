@@ -28,6 +28,9 @@ function ww_support_manager_blocked_pages() {
 	return [
 		'woocommerce'     => [ 'wc-settings', 'wc-status' ],
 		'license-manager' => [ 'license-manager-settings' ],
+		// Sales figures: Product Hub royalties (sits under Analytics) and AutomateWoo dashboard/reports.
+		'wc-admin&path=/analytics/overview' => [ 'product-hub-royalties' ],
+		'automatewoo'     => [ 'automatewoo-dashboard', 'automatewoo-reports' ],
 	];
 }
 
@@ -40,7 +43,33 @@ add_action( 'admin_menu', function () {
 			remove_submenu_page( $parent, $slug );
 		}
 	}
+	// Analytics is empty once Royalties is gone; Payments only leads to the blocked wc-settings.
+	remove_menu_page( 'wc-admin&path=/analytics/overview' );
+	remove_menu_page( 'admin.php?page=wc-settings&tab=checkout&from=PAYMENTS_MENU_ITEM' );
 }, 999 );
+
+// Dashboard widget showing Smart Coupons revenue.
+add_action( 'wp_dashboard_setup', function () {
+	if ( ww_is_support_manager( get_current_user_id() ) ) {
+		foreach ( [ 'normal', 'side', 'column3', 'column4' ] as $context ) {
+			remove_meta_box( 'wc_sc_insights', 'dashboard', $context );
+		}
+	}
+}, 999 );
+
+// WooCommerce Home "New sales record!" inbox note (loaded via REST).
+add_filter( 'rest_post_dispatch', function ( $response, $server, $request ) {
+	if ( ! ww_is_support_manager( get_current_user_id() ) || false === strpos( $request->get_route(), '/wc-analytics/admin/notes' ) ) {
+		return $response;
+	}
+	$data = $response->get_data();
+	if ( is_array( $data ) ) {
+		$response->set_data( array_values( array_filter( $data, function ( $n ) {
+			return ! ( is_array( $n ) && isset( $n['name'] ) && 'wc-admin-new-sales-record' === $n['name'] );
+		} ) ) );
+	}
+	return $response;
+}, 10, 3 );
 
 add_action( 'admin_init', function () {
 	if ( ! ww_is_support_manager( get_current_user_id() ) || empty( $_GET['page'] ) ) {
