@@ -38,3 +38,4 @@ add_action( 'wp_enqueue_scripts', 'hello_elementor_child_scripts_styles', 20 );
 include("functions/functions-enqueue.php");
 include("functions/functions-sidecart.php");
 include("functions/functions-misc.php");
+include("functions/functions-support-manager.php");
